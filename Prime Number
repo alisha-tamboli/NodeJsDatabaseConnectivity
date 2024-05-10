@@ -1,0 +1,29 @@
+	function isPrime(n) { 
+
+        let flag = true;
+
+		if (n == 0  ||  n == 1) {
+            console.log("Given number " , n , " is not a Prime number." )
+        }  
+
+        else {
+            for(let i=2; i<=n-1; i++) {
+                if(n%i == 0) {
+                    console.log("Given number " , n , " is not a Prime number." )
+                    return flag = false;
+                    break;
+                }
+            }
+        
+            if(flag == true) {
+                console.log("Given number " , n , " is a Prime number." )
+            }
+        }
+    }
+    
+    isPrime(4)
+    isPrime(11)
+    isPrime(1)
+    isPrime(2)
+    isPrime(0)
+    isPrime(3)
