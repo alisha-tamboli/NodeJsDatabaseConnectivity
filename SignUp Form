@@ -1,0 +1,268 @@
+//Node Js code of Database connectivity with Sign Up page
+const express = require('express');
+const bodyParser = require('body-parser');
+const path = require('path');
+const app = express();
+let PORT = 5500;
+
+
+// Body-parser middleware
+app.use(bodyParser.urlencoded({ extended: false }));
+//app.use(bodyParser.json());
+
+const mysql = require("mysql"); 
+
+const connection= mysql.createConnection({ 
+	host: 'localhost', 
+	user: 'root', 
+	password: "", 
+	database: 'demo'
+	}); 
+
+connection.connect();
+
+const sql2 = "SELECT* FROM sighup"
+connection.query(sql2, (err, rows) => {
+	if(!err) {
+		console.log("error reading records : " , err)
+		console.log(rows)
+	}
+})
+
+app.get("/", function (req, res) {
+	res.status(200);
+	res.send("Welcome to root url server!");
+});
+
+app.get('/signup', (req, res) => {
+    res.sendFile(path.join(__dirname + '/signup.html'));
+});
+
+app.listen(PORT, (error) => {
+	if(!error)
+    console.log('Server is running on port '+ PORT);
+	else
+	console.log("error occured ", error)
+  });
+
+
+app.post('/save2', (req, res) => {
+	console.log("data", req.body);
+
+	let firstname = req.body.fname;
+	let lastname = req.body.lname;
+	let email = req.body.email;
+	let password = req.body.password;
+	let contact = req.body.mobile;
+	let gender = req.body.gender;
+
+	if(firstname == '') {
+		res.send("firstname is required");
+		return;
+	}
+	else if(lastname == ''){
+		res.send("lastname is required");
+		return;
+	}
+	else if (email == '') {
+		res.send("email is required");
+		return;
+	}
+	else if (password == '') {
+		res.send("password is required");
+		return;
+	}
+	else if (contact == '') {
+		res.send("contact is required");
+		return;
+	}
+	else if (gender == '') {
+		res.send("gender is required");
+		return;
+	}
+	else if(firstname!= '' && lastname!= '' && email!= ''&& password != ''&& contact != ''&& gender != '') {
+		const sql2Insert = "INSERT INTO signup(fname, lname, email, password, contact, gender) VALUES (?,?,?,?,?,?)";
+		connection.query(sql2Insert, [firstname, lastname, email, password, contact, gender], (err, result) => {
+			if(err) {
+				console.error("error creating record", err);
+				return
+			}
+			//const sql = "SELECT * FROM users ORDER BY id DESC";
+			connection.query(sql2, (err, rows) => {
+				if(err) {
+					console.error("error reading records", err);
+					return
+				}
+				res.json(rows);
+			})
+		})
+	}
+	else {
+		res.send("All fields are required!");
+	}
+});
+
+
+//Html page for SignUp form
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Registration Form</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				background-color: #f3f3f3;
+				margin: 0;
+				padding: 0;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100vh;
+			}
+
+			.main {
+				background-color: #fff;
+				border-radius: 15px;
+				box-shadow: 0 0 20px
+					rgba(0, 0, 0, 0.2);
+				padding: 20px;
+				width: 300px;
+			}
+
+			.main h2 {
+				color: #4caf50;
+				margin-bottom: 20px;
+			}
+
+			label {
+				display: block;
+				margin-bottom: 5px;
+				color: #555;
+				font-weight: bold;
+			}
+
+			input[type="text"],
+			input[type="email"],
+			input[type="password"],
+			select {
+				width: 100%;
+				margin-bottom: 15px;
+				padding: 10px;
+				box-sizing: border-box;
+				border: 1px solid #ddd;
+				border-radius: 5px;
+			}
+
+			button[type="submit"] {
+				padding: 15px;
+				border-radius: 10px;
+				border: none;
+				background-color: #4caf50;
+				color: white;
+				cursor: pointer;
+				width: 100%;
+				font-size: 16px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="main">
+			<h2>Registration Form</h2>
+			<form action="/save2" method="post">
+
+				<label for="fname"
+					>First Name:</label
+				>
+				<input
+					type="text"
+					id="fname"
+					name="fname"
+					required
+				/>
+
+				<label for="lname"
+					>Last Name:</label
+				>
+				<input
+					type="text"
+					id="lname"
+					name="lname"
+					required
+				/>
+
+				<label for="email">Email:</label>
+				<input
+					type="email"
+					id="email"
+					name="email"
+					required
+				/>
+
+				<label for="password"
+					>Password:</label
+				>
+				<input
+					type="password"
+					id="password"
+					name="password"
+					pattern="^(?=.*\d)(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9])\S{8,}$"
+					title="Password must contain at least one number, 
+						one alphabet, one symbol, and be at 
+						least 8 characters long"
+					required
+				/>
+
+				<label for="repassword"
+					>Confirm-Password:</label
+				>
+				<input
+					type="password"
+					id="repassword"
+					name="repassword"
+					required
+				/>
+
+				<label for="mobile"
+					>Contact:</label
+				>
+				<input
+					type="text"
+					id="mobile"
+					name="mobile"
+					maxlength="10"
+					required
+				/>
+
+				<label for="gender"
+					>Gender:</label
+				>
+				<select
+					id="gender"
+					name="gender"
+					required
+				>
+					<option value="male">
+						Male
+					</option>
+					<option value="female">
+						Female
+					</option>
+					<option value="other">
+						Other
+					</option>
+				</select>
+
+				<button type="submit">
+					Submit
+				</button>
+			</form>
+		</div>
+	</body>
+</html>
